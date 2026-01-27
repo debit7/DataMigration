@@ -1,0 +1,9 @@
+# Core dependencies
+sqlalchemy==2.0.25
+pyyaml==6.0.1
+
+# Microsoft SQL Server
+pyodbc==5.0.1
+
+# Progress bar
+tqdm==4.66.1

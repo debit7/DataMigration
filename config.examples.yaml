@@ -1,0 +1,102 @@
+# Example configuration for different database scenarios
+
+# Example 1: MySQL to MySQL
+example_mysql_to_mysql:
+  source:
+    db_type: "mysql"
+    host: "source-server.example.com"
+    port: 3306
+    database: "sales_db"
+    username: "readonly_user"
+    password: "source_pass"
+    table: "orders"
+  
+  destination:
+    db_type: "mysql"
+    host: "dest-server.example.com"
+    port: 3306
+    database: "analytics_db"
+    username: "write_user"
+    password: "dest_pass"
+    table: "orders_copy"
+  
+  migration:
+    batch_size: 5000
+    create_table_if_missing: true
+    truncate_destination: false
+    show_progress: true
+
+# Example 2: PostgreSQL to MySQL
+example_postgres_to_mysql:
+  source:
+    db_type: "postgresql"
+    host: "postgres.example.com"
+    port: 5432
+    database: "production"
+    username: "pg_user"
+    password: "pg_pass"
+    table: "customers"
+  
+  destination:
+    db_type: "mysql"
+    host: "mysql.example.com"
+    port: 3306
+    database: "warehouse"
+    username: "mysql_user"
+    password: "mysql_pass"
+    table: "customers"
+  
+  migration:
+    batch_size: 2000
+    create_table_if_missing: true
+    truncate_destination: true
+    show_progress: true
+
+# Example 3: SQL Server to PostgreSQL
+example_mssql_to_postgres:
+  source:
+    db_type: "mssql"
+    host: "sqlserver.example.com"
+    port: 1433
+    database: "ERP"
+    username: "sa"
+    password: "sql_pass"
+    table: "Invoices"
+  
+  destination:
+    db_type: "postgresql"
+    host: "postgres.example.com"
+    port: 5432
+    database: "reporting"
+    username: "postgres"
+    password: "pg_pass"
+    table: "invoices"
+  
+  migration:
+    batch_size: 1000
+    create_table_if_missing: true
+    truncate_destination: false
+    show_progress: true
+
+# Example 4: SQLite to MySQL (local to cloud)
+example_sqlite_to_mysql:
+  source:
+    db_type: "sqlite"
+    database: "C:\\Data\\local_database.db"
+    # SQLite doesn't need host, port, username, password
+    table: "products"
+  
+  destination:
+    db_type: "mysql"
+    host: "cloud-mysql.example.com"
+    port: 3306
+    database: "cloud_db"
+    username: "cloud_user"
+    password: "cloud_pass"
+    table: "products"
+  
+  migration:
+    batch_size: 10000
+    create_table_if_missing: true
+    truncate_destination: true
+    show_progress: true
