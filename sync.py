@@ -167,7 +167,8 @@ class DataSync:
                 
                 # Fetch batch from source (starting from offset)
                 with source_engine.connect() as source_conn:
-                    # If we have a primary key, order by it for consistency
+                    # Add ORDER BY for SQL Server compatibility with OFFSET/LIMIT
+                    # Use primary key if available, otherwise use first column
                     if self.primary_key_column:
                         query = (
                             select(source_table)
@@ -176,7 +177,12 @@ class DataSync:
                             .offset(offset)
                         )
                     else:
-                        query = select(source_table).limit(current_batch_size).offset(offset)
+                        # Use primary keys if available, otherwise first column
+                        primary_keys = [col for col in source_table.columns if col.primary_key]
+                        if primary_keys:
+                            query = select(source_table).order_by(*primary_keys).limit(current_batch_size).offset(offset)
+                        else:
+                            query = select(source_table).order_by(source_table.columns[0]).limit(current_batch_size).offset(offset)
                     
                     result = source_conn.execute(query)
                     rows = result.fetchall()

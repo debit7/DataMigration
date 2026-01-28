@@ -1,7 +1,7 @@
 """
 Database connection module for multi-database support
 """
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.pool import NullPool
 from typing import Dict, Any
 
@@ -72,7 +72,7 @@ class DatabaseConnector:
             )
             # Test connection
             with self.engine.connect() as conn:
-                conn.execute("SELECT 1")
+                conn.execute(text("SELECT 1"))
             return self.engine
         except Exception as e:
             raise ConnectionError(f"Failed to connect to database: {str(e)}")

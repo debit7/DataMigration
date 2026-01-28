@@ -15,10 +15,19 @@ class TableManager:
         
         Args:
             engine: SQLAlchemy engine
-            table_name: Name of the table
+            table_name: Name of the table (can include schema like 'schema.table')
         """
         self.engine = engine
         self.table_name = table_name
+        self.schema = None
+        self.table_name_only = table_name
+        
+        # Parse schema if present (e.g., 'dsc.AddressTypes' -> schema='dsc', table='AddressTypes')
+        if '.' in table_name:
+            parts = table_name.split('.', 1)
+            self.schema = parts[0]
+            self.table_name_only = parts[1]
+        
         self.metadata = MetaData()
         
     def table_exists(self) -> bool:
@@ -29,7 +38,10 @@ class TableManager:
             True if table exists, False otherwise
         """
         inspector = inspect(self.engine)
-        return self.table_name in inspector.get_table_names()
+        if self.schema:
+            return self.table_name_only in inspector.get_table_names(schema=self.schema)
+        else:
+            return self.table_name_only in inspector.get_table_names()
     
     def get_table_object(self) -> Optional[Table]:
         """
@@ -43,8 +55,9 @@ class TableManager:
         
         try:
             table = Table(
-                self.table_name,
+                self.table_name_only,
                 self.metadata,
+                schema=self.schema,
                 autoload_with=self.engine
             )
             return table
@@ -85,9 +98,10 @@ class TableManager:
         try:
             # Create new table with same schema
             new_table = Table(
-                self.table_name,
+                self.table_name_only,
                 self.metadata,
                 *[self._clone_column(col) for col in source_table.columns],
+                schema=self.schema,
                 # Note: Primary keys and indexes are included in column definitions
                 # Foreign keys are intentionally not copied to avoid dependency issues
             )

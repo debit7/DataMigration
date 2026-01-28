@@ -135,7 +135,15 @@ class DataMigration:
             while offset < total_rows:
                 # Fetch batch from source
                 with source_engine.connect() as source_conn:
-                    query = select(source_table).limit(batch_size).offset(offset)
+                    # Add ORDER BY for SQL Server compatibility with OFFSET/LIMIT
+                    # Use primary key if available, otherwise use all columns
+                    primary_keys = [col for col in source_table.columns if col.primary_key]
+                    if primary_keys:
+                        query = select(source_table).order_by(*primary_keys).limit(batch_size).offset(offset)
+                    else:
+                        # If no primary key, order by first column
+                        query = select(source_table).order_by(source_table.columns[0]).limit(batch_size).offset(offset)
+                    
                     result = source_conn.execute(query)
                     rows = result.fetchall()
                     
