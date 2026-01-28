@@ -150,3 +150,9 @@ For production use:
 ## License
 
 MIT License
+
+## Commands to setup environment
+ python -m venv venv 
+ .\venv\Scripts\Activate.ps1
+ pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
+ 
